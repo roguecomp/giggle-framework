@@ -41,7 +41,7 @@ class gframe:
             features.append(binary.astype("int"))
         return features
     
-    def fillna(self, median : bool = True, mode : bool = True, mean : bool = True):
+    def fillna(self, median : bool = True, mode : bool = True, mean : bool = True) -> pd.DataFrame:
         for col in self.df:
             if df[col].dtype == float:
                 if mean:
@@ -61,8 +61,7 @@ class gframe:
                 else:
                     df[col].fillna(-1, inplace = True)
                     
-                
-                continue 
+        return self.df
 
     
     def cfolds(self, y : str = 'target', n_splits : int = 5) -> tuple:
