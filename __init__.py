@@ -41,7 +41,7 @@ class gframe:
             features.append(binary.astype("int"))
         return features
     
-    def fill_na(self, median : bool = True, mode : bool = True, mean : bool = True):
+    def fillna(self, median : bool = True, mode : bool = True, mean : bool = True):
         for col in self.df:
             if df[col].dtype == float:
                 if mean:
