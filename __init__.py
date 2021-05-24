@@ -33,6 +33,38 @@ class gframe:
         """
         return self.df.shape
     
+    def cat_to_num(col : str) -> list:
+        categories = self.df[col].unique()
+        features = []
+        for cat in categories:
+            binary = (self.df == cat)
+            features.append(binary.astype("int"))
+        return features
+    
+    def fill_na(self, median : bool = True, mode : bool = True, mean : bool = True):
+        for col in self.df:
+            if df[col].dtype == float:
+                if mean:
+                    df[col].fillna(df[col].mean(), inplace = True)
+                else:
+                    df[col].fillna(-99999, inplace = True)
+                    
+            elif df[col].dtype == int:
+                if median:
+                    df[col].fillna(df[col].median(), inplace = True)
+                else:
+                    df[col].fillna(-1, inplace = True)
+
+            else:
+                if mode:
+                    df[col].fillna(df[col].mode(), inplace = True)
+                else:
+                    df[col].fillna(-1, inplace = True)
+                    
+                
+                continue 
+
+    
     def cfolds(self, y : str = 'target', n_splits : int = 5) -> tuple:
         
         """Creates validation and train split using folds
@@ -66,11 +98,16 @@ class gframe:
         
         train, val = self.cfolds(y=y, n_splits=n_splits)
         
+        for model in models:
+            model.fit(X=x, y=y)
+        
         
         
         pass
         
 # %%
 
-gframe(df).train(models = [LinearRegression()], y='Survived', x=['Age'])
+gframe(df).fill_na()
+# %%
+
 # %%
