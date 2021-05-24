@@ -1,6 +1,7 @@
 # %%
 import pandas as pd
 import sklearn.model_selection as model_selection
+from typing import Union
 
 # %%
 df=pd.read_csv("data/train.csv")
@@ -32,7 +33,7 @@ class gframe:
         """
         return self.df.shape
     
-    def cfolds(self, target : str = 'target', n_splits : int = 5) -> tuple:
+    def cfolds(self, y : str = 'target', n_splits : int = 5) -> tuple:
         
         """Creates validation and train split using folds
 
@@ -43,22 +44,33 @@ class gframe:
             tuple (train_DataFrame, val_DataFrame): Train and Val split DataFrame
         """
         
-        if target not in self.df:
-            raise KeyError('{} is not in the DataFrame, did you forget to set target=column '.format(target))
+        if y not in self.df:
+            raise KeyError('{} is not in the DataFrame, did you forget to set y=column '.format(y))
         
         self.df['kfold'] = -1
         self.df = self.df.sample(frac=1).reset_index(drop=True)
 
-        self.__kf = model_selection.StratifiedKFold(n_splits=n_splits, shuffle=True)
+        kf = model_selection.StratifiedKFold(n_splits=n_splits, shuffle=True)
 
-        for fold, (train_idx, val_idx) in enumerate(self.__kf.split(X=self.df, y=self.df[target].values)):
+        for fold, (train_idx, val_idx) in enumerate(kf.split(X=self.df, y=self.df[y].values)):
             self.df.loc[val_idx, 'kfold'] = fold
 
         return (self.df.loc[self.df['kfold'] != 0], self.df.loc[self.df['kfold'] == 0])
         
+    def train(
+        self,
+        models : list,
+        y : Union[str, list] = 'target',
+        x : Union[str, list] = 'Age',
+        n_splits = 5) -> tuple:
+        
+        train, val = self.cfolds(y=y, n_splits=n_splits)
+        
+        
+        
+        pass
         
 # %%
-a = gframe(df)
-train, val = a.cfolds(target = 'Survived')
-train
+
+gframe(df).train(models = [LinearRegression()], y='Survived', x=['Age'])
 # %%
