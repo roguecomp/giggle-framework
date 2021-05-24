@@ -33,36 +33,45 @@ class gframe:
         """
         return self.df.shape
     
-    def cat_to_num(col : str) -> list:
-        categories = self.df[col].unique()
+    def cat_to_num(self, col : str) -> None:
+        """Changes categories to binary columns
+
+        Args:
+            col (str): Column in DataFrame
+            drop (bool, optional): Should it drop original column. Defaults to False.
+        """
+        categories = self.df[col].dropna().unique()
         features = []
         for cat in categories:
-            binary = (self.df == cat)
-            features.append(binary.astype("int"))
-        return features
+            binary = (self.df[col] == cat)
+            self.df[cat] = binary.astype("int")
     
-    def fillna(self, median : bool = True, mode : bool = True, mean : bool = True) -> pd.DataFrame:
+    def fillna(self, median : bool = True, mean : bool = True, categories : Union[str, list] = [], drop : bool = False) -> None:
         for col in self.df:
-            if df[col].dtype == float:
+            if self.df[col].dtype == float:
                 if mean:
-                    df[col].fillna(df[col].mean(), inplace = True)
+                    self.df[col].fillna(self.df[col].mean(), inplace = True)
                 else:
-                    df[col].fillna(-99999, inplace = True)
+                    self.df[col].fillna(-99999, inplace = True)
                     
-            elif df[col].dtype == int:
+            elif self.df[col].dtype == int:
                 if median:
-                    df[col].fillna(df[col].median(), inplace = True)
+                    self.df[col].fillna(self.df[col].median(), inplace = True)
                 else:
-                    df[col].fillna(-1, inplace = True)
+                    self.df[col].fillna(-1, inplace = True)
 
             else:
-                if mode:
-                    df[col].fillna(df[col].mode(), inplace = True)
-                else:
-                    df[col].fillna(-1, inplace = True)
-                    
-        return self.df
+                try:
+                    if type(categories) == list:
+                        for cat in categories:
+                            self.cat_to_num(cat)
+                    else:
+                        self.cat_to_num(categories)
+                 
+                except KeyError:
+                    raise KeyError(' "{}" is not a column in the DataFrame'.format(cat))
 
+        if drop: self.df.drop(categories, axis=1, inplace=True)
     
     def cfolds(self, y : str = 'target', n_splits : int = 5) -> tuple:
         
@@ -93,20 +102,22 @@ class gframe:
         models : list,
         y : Union[str, list] = 'target',
         x : Union[str, list] = 'Age',
-        n_splits = 5) -> tuple:
+        n_splits = 5 ) -> tuple:
         
         train, val = self.cfolds(y=y, n_splits=n_splits)
+        print(train)
         
-        for model in models:
-            model.fit(X=x, y=y)
-        
-        
+        # for model in models:
+        #     model.fit(X=x, y=y)
         
         pass
         
 # %%
+from sklearn.linear_model import LinearRegression
 
-gframe(df).fill_na()
+a = gframe(df)
+a.fillna(categories = ['Embarked'], drop = True)
+# a.train(models=[LinearRegression()], y='Survived', x='Age')
 # %%
-
+a.df
 # %%
