@@ -2,10 +2,6 @@
 import pandas as pd
 import sklearn.model_selection as model_selection
 from typing import Union
-
-# %%
-df=pd.read_csv("data/train.csv")
-
 # %%
 class gframe:
     def __init__(self, df : pd.DataFrame) -> None:
@@ -23,7 +19,7 @@ class gframe:
         Returns:
             int: Number of rows
         """
-        return df.index.stop
+        return self.df.index.stop
     
     def shape(self) -> tuple:
         """Returns the shape of the DataFrame
@@ -33,20 +29,20 @@ class gframe:
         """
         return self.df.shape
     
-    def cat_to_num(self, df, col : str) -> None:
+    def cat_to_num(self, col : str) -> None:
         """Changes categories to binary columns
 
         Args:
             col (str): Column in DataFrame
             drop (bool, optional): Should it drop original column. Defaults to False.
         """
-        categories = df[col].dropna().unique()
+        categories = self.df[col].dropna().unique()
         features = []
         for cat in categories:
-            binary = (df[col] == cat)
-            df[cat] = binary.astype("int")
+            binary = (self.df[col] == cat)
+            self.df[cat] = binary.astype("int")
     
-    def fillna(self, df, median : bool = False, mean : bool = False,
+    def fillna(self, median : bool = False, mean : bool = False,
                categories : Union[str, list] = [], drop : bool = False ) -> pd.DataFrame:
         """fills null values in data frame
 
@@ -60,31 +56,31 @@ class gframe:
             KeyError: If passed in column from list is not in DataFrame exception in raised
         """
         
-        for col in df:
-            if df[col].dtype in [float, int]:
+        for col in self.df:
+            if self.df[col].dtype in [float, int]:
                 if mean:
-                    df[col].fillna(df[col].mean(), inplace = True)
+                    self.df[col].fillna(self.df[col].mean(), inplace = True)
                 elif median:
-                    df[col].fillna(df[col].median(), inplace = True)
+                    self.df[col].fillna(self.df[col].median(), inplace = True)
                 else:
-                    df[col].fillna(-99999, inplace = True)
+                    self.df[col].fillna(-99999, inplace = True)
                     
             else:
                 try:
                     if type(categories) == list:
                         for cat in categories:
-                            self.cat_to_num(df, cat)
+                            self.cat_to_num(cat)
                     else:
-                        self.cat_to_num(df, categories)
+                        self.cat_to_num(categories)
                  
                 except KeyError:
                     raise KeyError(' "{}" is not a column in the DataFrame'.format(cat))
 
-        if drop: df.drop(categories, axis=1, inplace=True)
+        if drop: self.df.drop(categories, axis=1, inplace=True)
         
-        return gframe(df)
+        return gframe(self.df)
     
-    def cfolds(self, df, y : str = 'target', n_splits : int = 5 ) -> tuple:
+    def cfolds(self, y : str = 'target', n_splits : int = 5 ) -> tuple:
         """Creates validation and train split using folds
 
         Raises:
@@ -94,17 +90,17 @@ class gframe:
             tuple (train_DataFrame, val_DataFrame): Train and Val split DataFrame
         """
         
-        if y not in df:
+        if y not in self.df:
             raise KeyError('{} is not in the DataFrame, did you forget to set y=column '.format(y))
         
-        df['kfold'] = -1
-        df = df.sample(frac=1).reset_index(drop=True)
+        self.df['kfold'] = -1
+        self.df = self.df.sample(frac=1).reset_index(drop=True)
         kf = model_selection.StratifiedKFold(n_splits=n_splits, shuffle=True)
         
-        for fold, (train_idx, val_idx) in enumerate(kf.split(X=df, y=df[y].values)):
-            df.loc[val_idx, 'kfold'] = fold
+        for fold, (train_idx, val_idx) in enumerate(kf.split(X=self.df, y=self.df[y].values)):
+            self.df.loc[val_idx, 'kfold'] = fold
 
-        return (df.loc[df['kfold'] != 0], df.loc[df['kfold'] == 0])
+        return (self.df.loc[self.df['kfold'] != 0], self.df.loc[self.df['kfold'] == 0])
         
     def train(self, models : list, y : Union[str, list] = 'target', x : Union[str, list] = 'Age') -> tuple:
         """Trains model using scikit learn models specified in models list
@@ -121,9 +117,10 @@ class gframe:
         for model in models:
             print("[MODEL] {}".format(model.__name__))
             for fold in range(2, 15):
-                print(" ---> Fold: {}/15".format(fold))
-                train, val = self.cfolds(self.df, y=y, n_splits=fold)
+
+                train, val = self.cfolds(y=y, n_splits=fold)
                 
+                print(" ---> Fold: {}/15".format(fold))
             print()
             
             
@@ -138,7 +135,9 @@ class gframe:
 # %%
 from sklearn.linear_model import LinearRegression
 
-# gframe(df).fillna(df, median=True, categories = ['Embarked'], drop = False)
+df=pd.read_csv("data/train.csv")
+gframe(df).fillna(median=True, categories = ['Embarked'], drop = False).df
 # a.train(models=[LinearRegression], y='Survived', x='Age')
-gframe(df).cfolds(df, y='Survived')[0]
+# gframe(df).cfolds(y='Survived')[0]
 # %%
+df
