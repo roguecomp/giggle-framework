@@ -2,6 +2,8 @@
 import pandas as pd
 import sklearn.model_selection as model_selection
 from typing import Union
+import numpy as np
+import time
 # %%
 class gframe:
     def __init__(self, df : pd.DataFrame) -> None:
@@ -11,7 +13,7 @@ class gframe:
         except AssertionError:
             raise TypeError('Received type {}, Expected {}'.format(type(df), pd.DataFrame))
 
-        self.df = df
+        self.df = df.copy()
 
     def __len__(self) -> int:
         """Returns number of rows in DataFrame
@@ -102,7 +104,7 @@ class gframe:
 
         return (self.df.loc[self.df['kfold'] != 0], self.df.loc[self.df['kfold'] == 0])
         
-    def train(self, models : list, y : Union[str, list] = 'target', x : Union[str, list] = 'Age') -> tuple:
+    def train(self, models : list, Y : Union[str, list] = 'target', x : Union[str, list] = 'Age', metrics : list = []) -> tuple:
         """Trains model using scikit learn models specified in models list
 
         Args:
@@ -115,29 +117,28 @@ class gframe:
         """
         
         for model in models:
-            print("[MODEL] {}".format(model.__name__))
-            for fold in range(2, 15):
-
-                train, val = self.cfolds(y=y, n_splits=fold)
-                
-                print(" ---> Fold: {}/15".format(fold))
+            print("[MODEL] {}".format(str(model)))
             print()
-            
-            
-            
-        print(train)
-        
-        # for model in models:
-        #     model.fit(X=x, y=y)
-        
-        pass
-        
-# %%
-from sklearn.linear_model import LinearRegression
-
-df=pd.read_csv("data/train.csv")
-gframe(df).fillna(median=True, categories = ['Embarked'], drop = False).df
-# a.train(models=[LinearRegression], y='Survived', x='Age')
-# gframe(df).cfolds(y='Survived')[0]
-# %%
-df
+            for fold in range(2, 15):
+                since = time.time()
+                train, val = self.cfolds(y=Y, n_splits=fold)
+                
+                # Initialize X and y values in right format
+                X = np.array(train[x])
+                y = np.array(train[Y])
+                
+                model.fit(X=X, y=y)
+                
+                X = np.array(val[x])
+                y = np.array(val[Y])
+                
+                now = time.time()
+                
+                for metric in metrics:
+                    score = metric(model.predict(X), y)
+                    print("[ {} ]: {}".format(metric.__name__, score))
+                    
+                print(" ===> Fold: {}/15 || Time taken: {:.3f} seconds".format(fold, now - since))
+                
+                print()
+            print('=' * 50)
