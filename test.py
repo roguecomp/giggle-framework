@@ -2,7 +2,7 @@ from gframe import *
 
 # %%
 def custom(x, y):
-    return "{}/{} : {}".format(sum(np.array(np.round(x)) == np.array(y)), len(x), sum(np.array(np.round(x)) == np.array(y)) / len(x))
+    return "{}/{} : {}".format(sum(np.array(x) == np.array(y)), len(x), sum(np.array(x) == np.array(y)) / len(x))
 # %%
 # from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier

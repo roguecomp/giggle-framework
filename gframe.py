@@ -4,7 +4,6 @@ import sklearn.model_selection as model_selection
 from typing import Union
 import numpy as np
 import time
-
 # %%
 class gframe:
     def __init__(self, df : pd.DataFrame) -> None:
