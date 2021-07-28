@@ -1,12 +1,9 @@
-#from gframe import *
-from gframe import gframe
-import numpy as np
-import pandas as pd
+from gframe import *
 
 # %%
 def custom(predicted, actual):
     guessed_correctly = sum(np.array(np.round(predicted)) == np.array(actual))
-    return "{}/{} : {:.5f}".format(guessed_correctly, len(predicted), guessed_correctly / len(predicted))
+    return "{}/{} : {:.5f}".format(guessed_correctly, len(predicted), guessed_correctly / len(actual))
 # %%
 # from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
