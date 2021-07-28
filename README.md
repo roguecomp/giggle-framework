@@ -1,5 +1,5 @@
 # giggle-framework
 
-<video width="320" height="240" controls>
+<video width="1920" height="1080" controls>
   <source src="video_assets/titanic_giggle.mp4" type="video/mp4">
 </video>
