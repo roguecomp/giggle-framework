@@ -49,10 +49,21 @@ class gframe:
         """fills null values in data frame
 
         Args:
-            median (bool, optional): fill null values with median. Defaults to False.
-            mean (bool, optional): fill null values with mean. Defaults to False.
-            categories (Union[str, list], optional): changes columns to boolean columns. Defaults to [].
-            drop (bool, optional): drops original column after making them boolean. Defaults to False.
+        -----
+            median (bool, optional):
+                fill null values in the columns of the DataFrame
+                with median. Defaults to False.
+            
+            mean (bool, optional):
+                fill null values in the columns of the DataFrame
+                with mean. Defaults to False.
+            
+            categories (Union[str, list], optional):
+                changes columns to boolean columns. Defaults to [].
+            
+            drop (bool, optional):
+                drops original column after making categorical 
+                columns in the DataFrame boolean. Defaults to False.
 
         Raises:
             KeyError: If passed in column from list is not in DataFrame exception in raised
