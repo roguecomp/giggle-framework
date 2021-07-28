@@ -1,2 +1,3 @@
 .gitignore
-video_assets
+gframe/__pycache__/
+samples/gframe/__pycache__/
