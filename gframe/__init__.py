@@ -83,7 +83,19 @@ class gframe:
         return gframe(self.df)
     
     def cfolds(self, y : str = 'target', n_splits : int = 5 ) -> tuple:
-        """Creates validation and train split using folds
+        """Creates validation and train split using sklearn kfolds. 
+        
+        Args:
+        -----
+            y (str):
+                The column that you are trying to predict. This column
+                name will be useful when trying to split the DataFrame
+                using kfolds.
+                
+            n_splits (int):
+                How many splits to apply to the DataFrame to obtain the 
+                validation set. validation set is (1/n_splits) of the 
+                original DataFrame. Defaults to 5.
 
         Raises:
             KeyError: Column specified in target is not in DataFrame
